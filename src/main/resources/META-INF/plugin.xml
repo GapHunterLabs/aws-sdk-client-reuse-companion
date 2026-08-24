@@ -1,0 +1,44 @@
+<!-- Plugin Configuration File. Read more: https://plugins.jetbrains.com/docs/intellij/plugin-configuration-file.html -->
+<idea-plugin>
+    <id>dev.gaphunter.awssdkclientreusecompanion</id>
+    <name>AWS SDK Client Reuse Companion</name>
+    <vendor>Gap Hunter Labs</vendor>
+    <description><![CDATA[
+        <p>Gutter warning icon on an AWS SDK for Java 2.x service
+        client (<code>S3Client</code>, <code>DynamoDbClient</code>,
+        <code>SqsClient</code>, <code>SnsClient</code>,
+        <code>LambdaClient</code>, and similar) built via
+        <code>XxxClient.builder().build()</code> inside a regular
+        method body -- AWS's own documentation states service clients
+        are thread-safe and meant to be created once and reused; a
+        client built inside a method means a brand new client (and its
+        own connection pool) gets created on every call, a real,
+        documented performance footgun.</p>
+        <p><b>100% static text/PSI analysis</b> -- matches the client
+        class name by simple text, so it works whether the real AWS
+        SDK jar is on the classpath or not. Java and Kotlin.</p>
+        <p>Stated honestly: v0.1 only flags the direct
+        <code>.builder().build()</code> chain -- a builder assigned to
+        an intermediate variable before <code>.build()</code> is
+        called isn't specially traced. Never flags a build call inside
+        a constructor or a field/property initializer (legitimate
+        "create once" locations).</p>
+        <p>Free. No license nags, no telemetry, no network calls.</p>
+    ]]></description>
+
+    <depends>com.intellij.modules.platform</depends>
+    <depends>com.intellij.java</depends>
+    <depends>org.jetbrains.kotlin</depends>
+
+    <extensions defaultExtensionNs="org.jetbrains.kotlin">
+        <supportsKotlinPluginMode supportsK1="true" supportsK2="true"/>
+    </extensions>
+
+    <extensions defaultExtensionNs="com.intellij">
+        <codeInsight.lineMarkerProvider language="JAVA"
+            implementationClass="dev.gaphunter.awssdkclientreusecompanion.gutter.ClientBuiltPerCallLineMarkerProvider"/>
+        <codeInsight.lineMarkerProvider language="kotlin"
+            implementationClass="dev.gaphunter.awssdkclientreusecompanion.gutter.ClientBuiltPerCallLineMarkerProvider"/>
+        <notificationGroup id="AWS SDK Client Reuse Companion" displayType="BALLOON"/>
+    </extensions>
+</idea-plugin>
